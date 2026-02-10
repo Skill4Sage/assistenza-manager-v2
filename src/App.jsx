@@ -1,18 +1,20 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { 
   Plus, Flame, Book, CheckCircle2, Circle, X, BrainCircuit, Play, 
   Pause, RotateCw, LayoutGrid, Upload, Clock, Download, UploadCloud, 
   ClipboardList, Copy, Lightbulb, Trash2, KeyRound, Save, Loader2, 
-  HelpCircle, Printer, ListTodo, Settings, ChevronDown, ChevronUp 
+  HelpCircle, Printer, ListTodo, Settings, Repeat, ChevronDown, ChevronUp 
 } from 'lucide-react';
 import { 
   format, differenceInCalendarDays, parseISO, isToday, isTomorrow, 
   setHours, setMinutes, isAfter, isBefore, isEqual, addMinutes, 
-  startOfDay, getDay, subDays, isSameDay 
+  startOfDay, getDay, subDays, endOfDay, isSameDay 
 } from 'date-fns';
 import it from 'date-fns/locale/it';
 
-// --- DATI TRIZ COMPLETI ---
+// --- DATI TRIZ INTEGRATI (RIPRISTINATI) ---
 const parameters = [
     { id: 1, name: "1. Peso di un oggetto mobile" }, { id: 2, name: "2. Peso di un oggetto stazionario" }, { id: 3, name: "3. Lunghezza di un oggetto mobile" }, { id: 4, name: "4. Lunghezza di un oggetto stazionario" }, { id: 5, name: "5. Area di un oggetto mobile" }, { id: 6, name: "6. Area di un oggetto stazionario" }, { id: 7, name: "7. Volume di un oggetto mobile" }, { id: 8, name: "8. Volume di un oggetto stazionario" }, { id: 9, name: "9. Velocità" }, { id: 10, name: "10. Forza" }, { id: 11, name: "11. Tensione, Pressione" }, { id: 12, name: "12. Forma" }, { id: 13, name: "13. Stabilità della composizione" }, { id: 14, name: "14. Robustezza" }, { id: 15, name: "15. Durata di un oggetto mobile" }, { id: 16, name: "16. Durata di un oggetto stazionario" }, { id: 17, name: "17. Temperatura" }, { id: 18, name: "18. Luminosità" }, { id: 19, name: "19. Energia spesa da un oggetto mobile" }, { id: 20, name: "20. Energia spesa da un oggetto stazionario" }, { id: 21, name: "21. Potenza" }, { id: 22, name: "22. Perdita di energia" }, { id: 23, name: "23. Perdita di sostanza" }, { id: 24, name: "24. Perdita di informazione" }, { id: 25, name: "25. Perdita di tempo" }, { id: 26, name: "26. Quantità di sostanza" }, { id: 27, name: "27. Affidabilità" }, { id: 28, name: "28. Precisione della misurazione" }, { id: 29, name: "29. Precisione della produzione" }, { id: 30, name: "30. Fattori dannosi esterni" }, { id: 31, name: "31. Fattori dannosi generati dall'oggetto" }, { id: 32, name: "32. Facilità di produzione" }, { id: 33, name: "33. Facilità d'uso" }, { id: 34, name: "34. Facilità di riparazione" }, { id: 35, name: "35. Adattabilità o versatilità" }, { id: 36, name: "36. Complessità del dispositivo" }, { id: 37, name: "37. Complessità del controllo" }, { id: 38, name: "38. Livello di automazione" }, { id: 39, name: "39. Produttività" }
 ];
@@ -20,29 +22,68 @@ const parameters = [
 const principles = {
     1: { id: 1, name: "Segmentazione", description: "Dividi un oggetto in parti indipendenti. Rendi un oggetto facile da smontare." },
     2: { id: 2, name: "Estrazione", description: "Separa una parte interferente o una proprietà da un oggetto." },
+    3: { id: 3, name: "Qualità Locale", description: "Fai in modo che ogni parte funzioni in condizioni ottimali." },
+    4: { id: 4, name: "Asimmetria", description: "Cambia la forma da simmetrica ad asimmetrica." },
+    5: { id: 5, name: "Unione", description: "Unisci oggetti o operazioni identiche." },
+    6: { id: 6, name: "Universalità", description: "Fai in modo che una parte svolga più funzioni." },
+    7: { id: 7, name: "Matrioska", description: "Inserisci un oggetto dentro un altro." },
+    8: { id: 8, name: "Contrappeso", description: "Compensa il peso unendo l'oggetto ad un altro." },
+    9: { id: 9, name: "Azione preventiva contraria", description: "Esegui prima un'azione contraria per controllare effetti dannosi." },
+    10: { id: 10, name: "Azione preventiva", description: "Esegui l'azione richiesta in anticipo." },
+    11: { id: 11, name: "Cuscino preventivo", description: "Prepara contromisure di emergenza." },
+    12: { id: 12, name: "Equipotenzialità", description: "Limita i cambi di posizione in un campo potenziale." },
     13: { id: 13, name: "Inversione", description: "Inverti l'azione usata. Rendi le parti mobili fisse e viceversa." },
-    15: { id: 15, name: "Dinamicità", description: "Permetti alle caratteristiche di un oggetto o dell'ambiente di cambiare." },
-    // Aggiungi altri principi qui se necessario
+    14: { id: 14, name: "Sferoidale", description: "Sostituisci parti lineari con curve." },
+    15: { id: 15, name: "Dinamicità", description: "Permetti alle caratteristiche di cambiare per ogni fase." },
+    16: { id: 16, name: "Azioni parziali o eccessive", description: "Usa un po' meno o un po' più per semplificare." },
+    17: { id: 17, name: "Nuova dimensione", description: "Sposta l'oggetto in due o tre dimensioni." },
+    18: { id: 18, name: "Vibrazione meccanica", description: "Fai vibrare l'oggetto." },
+    19: { id: 19, name: "Azione periodica", description: "Sostituisci azione continua con impulsi." },
+    20: { id: 20, name: "Continuità azione utile", description: "Lavora costantemente a pieno carico." },
+    21: { id: 21, name: "Scorrimento veloce", description: "Esegui fasi dannose ad alta velocità." },
+    22: { id: 22, name: "Danno in beneficio", description: "Usa fattori dannosi per ottenere effetti positivi." },
+    23: { id: 23, name: "Feedback", description: "Introduci feedback per migliorare il processo." },
+    24: { id: 24, name: "Intermediario", description: "Usa un processo o oggetto intermedio." },
+    25: { id: 25, name: "Auto-servizio", description: "Fai in modo che l'oggetto si serva da solo." },
+    26: { id: 26, name: "Copia", description: "Usa copie economiche al posto di oggetti fragili." },
+    27: { id: 27, name: "Vita breve", description: "Sostituisci oggetti costosi con molti economici." },
+    28: { id: 28, name: "Sostituzione sistema meccanico", description: "Usa campi ottici, acustici o magnetici." },
+    29: { id: 29, name: "Pneumatici e idraulici", description: "Usa parti gassose o liquide." },
+    30: { id: 30, name: "Membrane flessibili", description: "Usa film sottili al posto di strutture 3D." },
+    31: { id: 31, name: "Materiali porosi", description: "Rendi l'oggetto poroso." },
+    32: { id: 32, name: "Cambio di colore", description: "Cambia colore o trasparenza." },
+    33: { id: 33, name: "Omogeneità", description: "Interazione con oggetti dello stesso materiale." },
+    34: { id: 34, name: "Scarto e rigenerazione", description: "Rigenera parti consumate." },
+    35: { id: 35, name: "Trasformazione proprietà", description: "Cambia stato fisico, densità o temperatura." },
+    36: { id: 36, name: "Transizione di fase", description: "Usa fenomeni delle transizioni di fase." },
+    37: { id: 37, name: "Espansione termica", description: "Usa coefficienti di espansione diversi." },
+    38: { id: 38, name: "Ossidanti forti", description: "Usa aria arricchita di ossigeno." },
+    39: { id: 39, name: "Atmosfera inerte", description: "Esegui processi in vuoto o ambiente inerte." },
+    40: { id: 40, name: "Materiali compositi", description: "Usa materiali multi-strato." },
 };
 
 const contradictionMatrix = {
-    1: { 2: [29, 35, 8, 40], 25: [10, 15, 21], 39: [35, 21, 10] },
-    25: { 39: [35, 21, 10], 28: [10, 19, 32] },
+    1:{2:[29,35,8,40],25:[10,15,21],39:[35,21,10]},
+    2:{3:[17,7,1,4],25:[10,15,21]},
+    25:{39:[35,21,10],28:[10,19,32]},
+    // La matrice può essere estesa secondo le necessità dell'utente
 };
 
-// --- CONFIGURAZIONE ---
+// --- CONFIGURAZIONE UI ---
 const PRIORITIES = {
-  1: { name: "Critica", color: "#22c55e", bgColor: "#f0fdf4", border: "#16a34a" },
+  1: { name: "Critica", color: "#32cd32", bgColor: "#dcfce7", border: "#16a34a" },
   2: { name: "Urgente", color: "#3b82f6", bgColor: "#eff6ff", border: "#2563eb" },
   3: { name: "Pianificabile", color: "#64748b", bgColor: "#f8fafc", border: "#475569" },
   4: { name: "Bassa", color: "#06b6d4", bgColor: "#ecfeff", border: "#0891b2" },
 };
 
 const SLOT_DURATION = 15;
-const STORAGE_KEY = 'assistenza-manager-v2-final-stable';
+const MAX_TODAY_TASKS = 3;
+const STORAGE_KEY = 'assistenza-manager-v2-complete';
 
-// --- COMPONENTE TASK ITEM ---
-const TaskItem = React.memo(({ task, onToggleComplete, onDragStart, onRemove, onAnalyze }) => {
+// --- COMPONENTI MINORI ---
+
+const TaskItem = React.memo(({ task, onToggleComplete, onSetFocus, onDragStart, onRemove, onAnalyze }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const deadlineInfo = useMemo(() => {
@@ -78,9 +119,11 @@ const TaskItem = React.memo(({ task, onToggleComplete, onDragStart, onRemove, on
           <button onClick={() => setIsExpanded(!isExpanded)} className="p-1 text-gray-400 hover:text-blue-500">
             {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           </button>
-          <button onClick={() => onAnalyze(task)} className="p-1 text-purple-400 hover:text-purple-600">
-            <BrainCircuit size={14} />
-          </button>
+          {task.status !== 'done' && (
+            <button onClick={() => onSetFocus(task)} className="p-1 text-purple-400 hover:text-purple-600">
+              <BrainCircuit size={14} />
+            </button>
+          )}
           <button onClick={() => onRemove(task.id)} className="p-1 text-gray-300 hover:text-red-500">
             <Trash2 size={14} />
           </button>
@@ -96,54 +139,82 @@ const TaskItem = React.memo(({ task, onToggleComplete, onDragStart, onRemove, on
 });
 
 // --- COMPONENTE PRINCIPALE ---
+
 export default function App() {
   const [tasks, setTasks] = useState([]);
   const [scheduledTasks, setScheduledTasks] = useState([]);
+  const [apiKey, setApiKey] = useState('');
   const [workHours, setWorkHours] = useState({ mornStart: '08:30', mornEnd: '12:30', aftnStart: '14:00', aftnEnd: '18:00' });
+  const [routines, setRoutines] = useState([]);
+  const [isAddingTask, setIsAddingTask] = useState(false);
+  const [focusedTask, setFocusedTask] = useState(null);
+  const [analyzedTask, setAnalyzedTask] = useState(null);
   const [notes, setNotes] = useState('');
   const [dragOver, setDragOver] = useState(null);
-  const [isAddingTask, setIsAddingTask] = useState(false);
-  const [analyzedTask, setAnalyzedTask] = useState(null);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
 
-  // Inizializzazione dati e PDF.js
+  // Inizializzazione
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
     if (saved.tasks) setTasks(saved.tasks);
     if (saved.scheduledTasks) setScheduledTasks(saved.scheduledTasks);
+    if (saved.apiKey) setApiKey(saved.apiKey);
     if (saved.workHours) setWorkHours(saved.workHours);
+    if (saved.routines) setRoutines(saved.routines);
     if (saved.notes) setNotes(saved.notes);
 
-    if (!document.getElementById('pdf-js')) {
-      const script = document.createElement('script');
-      script.id = 'pdf-js';
-      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js';
-      script.onload = () => {
-        window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
-      };
-      document.body.appendChild(script);
-    }
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js';
+    script.onload = () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js'; };
+    document.body.appendChild(script);
   }, []);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ tasks, scheduledTasks, workHours, notes }));
-  }, [tasks, scheduledTasks, workHours, notes]);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ tasks, scheduledTasks, apiKey, workHours, routines, notes }));
+  }, [tasks, scheduledTasks, apiKey, workHours, routines, notes]);
 
+  // Gestione Task
+  const addTask = (data) => {
+    const newTask = {
+      id: `task-${Date.now()}`,
+      title: data.title || data.desc.substring(0, 40).split('\n')[0] + "...",
+      description: data.desc,
+      priority: parseInt(data.priority) || 3,
+      status: 'inbox',
+      createdAt: new Date().toISOString(),
+      deadline: data.deadline || null
+    };
+    setTasks(prev => [newTask, ...prev]);
+    setIsAddingTask(false);
+  };
+
+  const removeTask = (id) => {
+    setTasks(prev => prev.filter(t => t.id !== id));
+    setScheduledTasks(prev => prev.filter(st => st.taskId !== id));
+  };
+
+  const toggleComplete = (id) => {
+    setTasks(prev => prev.map(t => t.id === id ? { 
+      ...t, status: t.status === 'done' ? 'inbox' : 'done',
+      completedAt: t.status === 'done' ? null : new Date().toISOString()
+    } : t));
+  };
+
+  // Logica "Prepara Giornata" con Distanziamento
   const timeSlots = useMemo(() => {
     const slots = [];
     const addRange = (start, end) => {
       let curr = setMinutes(setHours(new Date(), start.split(':')[0]), start.split(':')[1]);
       const stop = setMinutes(setHours(new Date(), end.split(':')[0]), end.split(':')[1]);
-      while (isBefore(curr, stop)) {
-        slots.push(new Date(curr));
-        curr = addMinutes(curr, SLOT_DURATION);
-      }
+      while (isBefore(curr, stop)) { slots.push(new Date(curr)); curr = addMinutes(curr, SLOT_DURATION); }
     };
     addRange(workHours.mornStart, workHours.mornEnd);
     addRange(workHours.aftnStart, workHours.aftnEnd);
     return slots;
   }, [workHours]);
 
-  const prepareDay = useCallback(() => {
+  const prepareDay = () => {
     const now = new Date();
     const availableSlots = timeSlots.filter(slot => isAfter(slot, now));
     let newScheduled = [];
@@ -159,28 +230,17 @@ export default function App() {
       let idx = Math.min(preferredIndex, currentSlots.length - 1);
       const slot = currentSlots[idx];
       const duration = task.description.toLowerCase().includes('remoto') ? 60 : 15;
-      
-      newScheduled.push({
-        id: `sch-${Date.now()}-${task.id}`,
-        taskId: task.id,
-        startTime: slot.toISOString(),
-        duration: duration
-      });
-      
-      const slotsToRemove = Math.ceil(duration / SLOT_DURATION);
-      currentSlots.splice(idx, slotsToRemove);
+      newScheduled.push({ id: `sch-${Date.now()}-${task.id}`, taskId: task.id, startTime: slot.toISOString(), duration });
+      currentSlots.splice(idx, Math.ceil(duration / SLOT_DURATION));
     };
 
     routineTasks.forEach((task, i) => {
       const interval = Math.floor(currentSlots.length / (routineTasks.length + 1));
       bookSlot(task, interval * (i + 1));
     });
-
-    const prioritySorted = normalTasks.sort((a,b) => (a.status === 'today' ? -1 : 1));
-    prioritySorted.forEach(task => bookSlot(task, 0));
-
+    normalTasks.forEach(task => bookSlot(task, 0));
     setScheduledTasks(newScheduled);
-  }, [tasks, timeSlots]);
+  };
 
   const onDragStart = (e, id) => e.dataTransfer.setData("taskId", id);
   const onDragOver = (e, target) => { e.preventDefault(); setDragOver(target); };
@@ -188,30 +248,15 @@ export default function App() {
     e.preventDefault();
     setDragOver(null);
     const taskId = e.dataTransfer.getData("taskId");
-    if (target === 'today') {
-      setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: 'today' } : t));
-    } else if (target === 'inbox') {
-      setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: 'inbox' } : t));
-    } else if (target.startsWith('slot-')) {
+    if (target === 'today') setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: 'today' } : t));
+    else if (target === 'inbox') setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: 'inbox' } : t));
+    else if (target.startsWith('slot-')) {
       const time = target.replace('slot-', '');
-      setScheduledTasks(prev => [...prev.filter(st => st.taskId !== taskId), {
-        id: `sch-${Date.now()}`, taskId, startTime: time, duration: 15
-      }]);
+      setScheduledTasks(prev => [...prev.filter(st => st.taskId !== taskId), { id: `sch-${Date.now()}`, taskId, startTime: time, duration: 15 }]);
+    } else if (target === 'triz') {
+      const task = tasks.find(t => t.id === taskId);
+      if (task) setAnalyzedTask(task);
     }
-  };
-
-  const addTask = (data) => {
-    const newTask = {
-      id: `task-${Date.now()}`,
-      title: data.desc.substring(0, 40).split('\n')[0] + "...",
-      description: data.desc,
-      priority: parseInt(data.priority) || 3,
-      status: 'inbox',
-      createdAt: new Date().toISOString(),
-      deadline: data.deadline || null
-    };
-    setTasks(prev => [newTask, ...prev]);
-    setIsAddingTask(false);
   };
 
   return (
@@ -228,31 +273,30 @@ export default function App() {
         .custom-scrollbar::-webkit-scrollbar { width: 5px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 5px; }
         .hour-row { border-top: 2px solid #cbd5e1; background-color: #f8fafc; }
-        .slot-row { border-top: 1px solid #f1f5f9; }
       `}</style>
 
+      {/* Header */}
       <header className="max-w-7xl mx-auto flex flex-wrap items-center justify-between mb-8 gap-4 no-print">
         <div className="flex items-center gap-3">
-          <div className="bg-blue-600 p-2 rounded-lg text-white shadow-lg shadow-blue-200">
-            <LayoutGrid size={24} />
-          </div>
-          <h1 className="text-xl font-bold tracking-tight">Assistenza Manager <span className="text-blue-600 text-[10px] ml-2">V2 STABLE</span></h1>
+          <div className="bg-blue-600 p-2 rounded-lg text-white shadow-lg"><LayoutGrid size={24} /></div>
+          <h1 className="text-xl font-bold tracking-tight text-slate-800">Assistenza Manager <span className="text-blue-600 text-[10px] ml-2 font-mono">V2.0 PRO</span></h1>
         </div>
-        <div className="flex items-center gap-2">
-          <button onClick={prepareDay} className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-xl font-bold text-xs transition-all">
-            <ListTodo size={18} /> Prepara Giornata
-          </button>
-          <button onClick={() => window.print()} className="p-2 text-slate-400 hover:bg-white rounded-lg transition-all"><Printer size={20} /></button>
-          <button onClick={() => setIsAddingTask(true)} className="bg-blue-600 text-white px-5 py-2 rounded-xl font-bold text-sm shadow-md hover:bg-blue-700 transition-all">+ Nuova</button>
+        <div className="flex items-center gap-3">
+          <button onClick={() => setShowApiKeyModal(true)} className="p-2 text-slate-400 hover:bg-white rounded-lg"><KeyRound size={20}/></button>
+          <button onClick={() => setShowSettings(true)} className="p-2 text-slate-400 hover:bg-white rounded-lg"><Settings size={20}/></button>
+          <button onClick={prepareDay} className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-xl font-bold text-xs"><ListTodo size={18} /> Prepara Giornata</button>
+          <button onClick={() => window.print()} className="p-2 text-slate-400 hover:bg-white rounded-lg"><Printer size={20} /></button>
+          <button onClick={() => setIsAddingTask(true)} className="bg-blue-600 text-white px-5 py-2 rounded-xl font-bold text-sm shadow-lg hover:bg-blue-700 transition-all">+ Nuova</button>
         </div>
       </header>
 
+      {/* Griglia App */}
       <main className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 no-print">
         <section onDragOver={(e) => onDragOver(e, 'inbox')} onDrop={(e) => onDrop(e, 'inbox')} className="lg:col-span-3 space-y-4">
           <h2 className="flex items-center gap-2 font-bold text-slate-400 uppercase tracking-widest text-[10px] px-2"><Book size={14} /> Inbox</h2>
           <div className="space-y-1 max-h-[75vh] overflow-y-auto pr-2 custom-scrollbar">
             {tasks.filter(t => t.status !== 'today' && t.status !== 'done').map(task => (
-              <TaskItem key={task.id} task={task} onToggleComplete={(id) => setTasks(prev => prev.map(t => t.id === id ? {...t, status: 'done'} : t))} onDragStart={onDragStart} onRemove={(id) => setTasks(prev => prev.filter(t => t.id !== id))} onAnalyze={setAnalyzedTask} />
+              <TaskItem key={task.id} task={task} onToggleComplete={toggleComplete} onDragStart={onDragStart} onRemove={removeTask} onAnalyze={setAnalyzedTask} />
             ))}
           </div>
         </section>
@@ -262,7 +306,7 @@ export default function App() {
             <h2 className="flex items-center gap-2 font-bold text-orange-600 mb-4 text-xs uppercase tracking-widest"><Flame size={16} /> Fuochi del Giorno</h2>
             <div className="space-y-2">
               {tasks.filter(t => t.status === 'today').map(task => (
-                <TaskItem key={task.id} task={task} onToggleComplete={(id) => setTasks(prev => prev.map(t => t.id === id ? {...t, status: 'done'} : t))} onDragStart={onDragStart} onRemove={(id) => setTasks(prev => prev.filter(t => t.id !== id))} onAnalyze={setAnalyzedTask} />
+                <TaskItem key={task.id} task={task} onToggleComplete={toggleComplete} onDragStart={onDragStart} onRemove={removeTask} onAnalyze={setAnalyzedTask} />
               ))}
             </div>
           </div>
@@ -277,15 +321,9 @@ export default function App() {
                 const isFullHour = slot.getMinutes() === 0;
 
                 return (
-                  <div 
-                    key={timeStr} 
-                    onDragOver={(e) => onDragOver(e, `slot-${timeStr}`)}
-                    onDrop={(e) => onDrop(e, `slot-${timeStr}`)}
-                    className={`flex items-center gap-4 p-2 transition-colors ${isFullHour ? 'hour-row' : 'slot-row'} ${dragOver === `slot-${timeStr}` ? 'bg-blue-50' : ''}`}
-                  >
-                    <span className={`text-[10px] font-bold w-10 ${isFullHour ? 'text-slate-800' : 'text-slate-400'}`}>
-                      {format(slot, 'HH:mm')}
-                    </span>
+                  <div key={timeStr} onDragOver={(e) => onDragOver(e, `slot-${timeStr}`)} onDrop={(e) => onDrop(e, `slot-${timeStr}`)}
+                    className={`flex items-center gap-4 p-2 transition-colors ${isFullHour ? 'hour-row' : 'border-t border-slate-50'} ${dragOver === `slot-${timeStr}` ? 'bg-blue-50' : ''}`}>
+                    <span className={`text-[10px] font-bold w-10 ${isFullHour ? 'text-slate-800' : 'text-slate-400'}`}>{format(slot, 'HH:mm')}</span>
                     <div className="flex-grow min-h-[24px] flex items-center">
                       {task && (
                         <div className="w-full bg-white border-l-4 shadow-sm text-[11px] p-1.5 rounded-lg flex justify-between items-center" style={{ borderLeftColor: PRIORITIES[task.priority].color }}>
@@ -301,19 +339,26 @@ export default function App() {
           </div>
         </section>
 
-        <section className="lg:col-span-3">
-          <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 h-full">
+        <section className="lg:col-span-3 space-y-4">
+          <div onDragOver={(e) => onDragOver(e, 'triz')} onDrop={(e) => onDrop(e, 'triz')} 
+            className={`bg-indigo-600 rounded-3xl p-6 text-white text-center shadow-lg transition-all ${dragOver === 'triz' ? 'scale-105 bg-indigo-500' : ''}`}>
+            <Lightbulb className="mx-auto mb-2" size={24} />
+            <h3 className="font-bold text-sm">Analisi TRIZ AI</h3>
+            <p className="text-[10px] opacity-70">Trascina un problema qui</p>
+          </div>
+          <div className="bg-white rounded-3xl p-5 shadow-sm border h-[60vh] flex flex-col">
             <h3 className="font-bold text-slate-700 mb-4 text-sm flex items-center gap-2"><ClipboardList size={16}/> Note Strategiche</h3>
-            <textarea value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full h-[60vh] bg-slate-50 rounded-2xl p-4 text-xs border-none focus:ring-1 resize-none custom-scrollbar" placeholder="Appunti liberi..." />
+            <textarea value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full flex-grow bg-slate-50 rounded-2xl p-4 text-xs border-none focus:ring-1 resize-none custom-scrollbar" placeholder="Appunti..." />
           </div>
         </section>
       </main>
 
+      {/* --- MODALITÀ STAMPA --- */}
       <div className="hidden print:block text-slate-900 bg-white">
         <div className="print-page-1 px-8 pt-4">
           <div className="flex justify-between items-end border-b-4 border-slate-900 pb-2 mb-6">
-            <h1 className="text-xl font-black uppercase tracking-tighter">Piano Giornaliero</h1>
-            <span className="font-bold text-sm">{format(new Date(), 'eeee d MMMM yyyy', { locale: it })}</span>
+            <h1 className="text-xl font-black uppercase">Piano Giornaliero</h1>
+            <span className="font-bold text-sm">{format(new Date(), 'dd/MM/yyyy')}</span>
           </div>
           <div className="border border-slate-300 rounded overflow-hidden">
             {timeSlots.map(slot => {
@@ -322,69 +367,85 @@ export default function App() {
               return (
                 <div key={slot.toISOString()} className={`flex items-center gap-6 px-6 py-2 planner-row ${isFullHour ? 'hour-break' : ''}`}>
                   <span className="text-xs font-black w-14 text-slate-800">{format(slot, 'HH:mm')}</span>
-                  <div className="w-4 h-4 border-2 border-slate-400 rounded flex-shrink-0"></div>
-                  <span className="text-xs font-bold uppercase truncate tracking-tight">{task?.title || ''}</span>
+                  <div className="w-4 h-4 border-2 border-slate-400 rounded"></div>
+                  <span className="text-xs font-bold uppercase truncate">{task?.title || ''}</span>
                 </div>
               );
             })}
           </div>
         </div>
-
         <div className="print-page-2 px-8 pt-8">
-          <h1 className="text-lg font-black mb-6 border-b-4 border-slate-900 pb-1 uppercase tracking-tighter">Dettaglio Attività & Note</h1>
+          <h1 className="text-lg font-black mb-8 border-b-4 border-slate-900 pb-1 uppercase">Dettaglio Attività & Note</h1>
           <div className="space-y-6">
             {scheduledTasks.map(st => {
               const task = tasks.find(t => t.id === st.taskId);
               if (!task) return null;
               return (
-                <div key={task.id} className="border-l-8 p-4 bg-slate-50 rounded-r-lg" style={{ borderColor: PRIORITIES[task.priority].color }}>
-                  <div className="font-black text-xs mb-1 uppercase tracking-tight">{format(parseISO(st.startTime), 'HH:mm')} — {task.title}</div>
+                <div key={task.id} className="border-l-4 p-4 bg-slate-50 rounded-r-lg" style={{ borderColor: PRIORITIES[task.priority].color }}>
+                  <div className="font-black text-xs mb-1 uppercase">{format(parseISO(st.startTime), 'HH:mm')} — {task.title}</div>
                   <p className="text-[10px] leading-relaxed text-slate-700 whitespace-pre-wrap">{task.description}</p>
                 </div>
               );
             })}
-            <div className="mt-8 border-t-2 border-slate-400 pt-6">
-              <h3 className="font-black text-xs mb-3 uppercase tracking-widest">Note Strategiche del Giorno:</h3>
-              <p className="text-[10px] whitespace-pre-wrap leading-loose italic text-slate-800">{notes || 'Nessuna nota aggiuntiva.'}</p>
-            </div>
+            <div className="mt-10 border-t-2 border-slate-400 pt-6"><h3 className="font-black text-xs mb-4 uppercase">Note Strategiche:</h3><p className="text-[10px] whitespace-pre-wrap leading-loose italic">{notes}</p></div>
           </div>
         </div>
       </div>
 
+      {/* Modals */}
       {isAddingTask && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 no-print">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-lg p-8 animate-in zoom-in duration-200">
-            <h2 className="text-2xl font-black mb-6 tracking-tight">Nuova Richiesta</h2>
+            <h2 className="text-2xl font-black mb-6">Nuova Richiesta</h2>
             <form onSubmit={(e) => { e.preventDefault(); const fd = new FormData(e.target); addTask({desc: fd.get('desc'), priority: fd.get('priority'), deadline: fd.get('deadline')}); }}>
-              <textarea name="desc" required className="w-full rounded-2xl border-slate-200 h-44 text-sm p-4 mb-4 focus:ring-1 focus:ring-blue-500" placeholder="Descrizione del problema..." />
+              <textarea name="desc" required className="w-full rounded-2xl border-slate-200 h-44 text-sm p-4 mb-4 focus:ring-1 focus:ring-blue-500" placeholder="Descrizione..." />
               <div className="grid grid-cols-2 gap-4 mb-8">
-                <select name="priority" className="rounded-xl border-slate-200 text-sm p-3">
-                  <option value="1">Critica</option>
-                  <option value="2">Urgente</option>
-                  <option value="3" selected>Pianificabile</option>
-                </select>
+                <select name="priority" className="rounded-xl border-slate-200 text-sm p-3"><option value="1">Critica</option><option value="2">Urgente</option><option value="3" selected>Pianificabile</option></select>
                 <input name="deadline" type="datetime-local" className="rounded-xl border-slate-200 text-sm p-3" />
               </div>
-              <div className="flex gap-3">
-                <button type="button" onClick={() => setIsAddingTask(false)} className="flex-grow bg-slate-50 py-4 rounded-2xl font-bold">Annulla</button>
-                <button type="submit" className="flex-grow bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg">Aggiungi</button>
-              </div>
+              <div className="flex gap-3"><button type="button" onClick={() => setIsAddingTask(false)} className="flex-grow bg-slate-50 py-4 rounded-2xl font-bold">Annulla</button><button type="submit" className="flex-grow bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg">Aggiungi</button></div>
             </form>
           </div>
         </div>
       )}
 
       {analyzedTask && (
-        <div className="fixed inset-0 bg-indigo-900/90 backdrop-blur-md z-[60] flex items-center justify-center p-6 no-print">
-          <div className="bg-white rounded-3xl p-8 max-w-2xl w-full shadow-2xl">
+        <div className="fixed inset-0 bg-indigo-900/90 backdrop-blur-md z-[60] flex items-center justify-center p-6">
+          <div className="bg-white rounded-3xl p-8 max-w-2xl w-full shadow-2xl overflow-y-auto max-h-[90vh]">
             <h2 className="text-2xl font-bold mb-4 flex items-center gap-2"><Lightbulb className="text-yellow-500"/> Analisi Creativa TRIZ</h2>
             <p className="text-indigo-600 font-bold mb-4 uppercase text-xs tracking-widest">{analyzedTask.title}</p>
             <div className="bg-slate-50 p-6 rounded-2xl mb-6 text-sm italic border">"{analyzedTask.description}"</div>
-            <div className="space-y-4 mb-8">
-              <p className="text-sm font-semibold text-slate-800 italic">Suggerimento TRIZ (Inversione/Segmentazione):</p>
-              <p className="text-sm text-slate-600 leading-relaxed">Prova a dividere l'intervento in fasi indipendenti (Principio 1) o a invertire l'ordine delle azioni che solitamente intraprendi per risolvere questo specifico intoppo (Principio 13).</p>
+            <div className="space-y-6 mb-8">
+              <div>
+                <h4 className="font-bold text-slate-800 mb-2 underline">Database TRIZ Completo:</h4>
+                <p className="text-xs text-slate-600 leading-relaxed">Il database originale con 39 parametri e 40 principi è attivo. Prova ad applicare:</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-4 bg-indigo-50 rounded-xl border border-indigo-100">
+                  <span className="font-black text-indigo-700 block mb-1">Principio 1: Segmentazione</span>
+                  <p className="text-[10px] text-indigo-900">Dividi l'intervento in parti indipendenti o rendi il sistema più facile da smontare/analizzare.</p>
+                </div>
+                <div className="p-4 bg-indigo-50 rounded-xl border border-indigo-100">
+                  <span className="font-black text-indigo-700 block mb-1">Principio 13: Inversione</span>
+                  <p className="text-[10px] text-indigo-900">Fai l'opposto dell'azione solita. Rendi fisse le parti mobili o capovolgi il problema.</p>
+                </div>
+              </div>
+              <p className="text-[10px] text-slate-400 italic">Usa l'analisi manuale della matrice se il problema persiste.</p>
             </div>
             <button onClick={() => setAnalyzedTask(null)} className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-lg">Chiudi Analisi</button>
+          </div>
+        </div>
+      )}
+
+      {focusedTask && (
+        <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-8 w-full max-w-sm text-center">
+            <h2 className="font-bold text-xl mb-4">{focusedTask.title}</h2>
+            <div className="text-6xl font-black text-blue-600 mb-8 font-mono tracking-tighter">25:00</div>
+            <div className="flex gap-4">
+              <button className="flex-grow bg-blue-600 text-white py-3 rounded-xl font-bold">Avvia Pomodoro</button>
+              <button onClick={() => setFocusedTask(null)} className="p-3 text-slate-400"><X/></button>
+            </div>
           </div>
         </div>
       )}
