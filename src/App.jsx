@@ -14,61 +14,6 @@ import {
 } from 'date-fns';
 import it from 'date-fns/locale/it';
 
-// --- DATI TRIZ INTEGRATI (RIPRISTINATI) ---
-const parameters = [
-    { id: 1, name: "1. Peso di un oggetto mobile" }, { id: 2, name: "2. Peso di un oggetto stazionario" }, { id: 3, name: "3. Lunghezza di un oggetto mobile" }, { id: 4, name: "4. Lunghezza di un oggetto stazionario" }, { id: 5, name: "5. Area di un oggetto mobile" }, { id: 6, name: "6. Area di un oggetto stazionario" }, { id: 7, name: "7. Volume di un oggetto mobile" }, { id: 8, name: "8. Volume di un oggetto stazionario" }, { id: 9, name: "9. Velocità" }, { id: 10, name: "10. Forza" }, { id: 11, name: "11. Tensione, Pressione" }, { id: 12, name: "12. Forma" }, { id: 13, name: "13. Stabilità della composizione" }, { id: 14, name: "14. Robustezza" }, { id: 15, name: "15. Durata di un oggetto mobile" }, { id: 16, name: "16. Durata di un oggetto stazionario" }, { id: 17, name: "17. Temperatura" }, { id: 18, name: "18. Luminosità" }, { id: 19, name: "19. Energia spesa da un oggetto mobile" }, { id: 20, name: "20. Energia spesa da un oggetto stazionario" }, { id: 21, name: "21. Potenza" }, { id: 22, name: "22. Perdita di energia" }, { id: 23, name: "23. Perdita di sostanza" }, { id: 24, name: "24. Perdita di informazione" }, { id: 25, name: "25. Perdita di tempo" }, { id: 26, name: "26. Quantità di sostanza" }, { id: 27, name: "27. Affidabilità" }, { id: 28, name: "28. Precisione della misurazione" }, { id: 29, name: "29. Precisione della produzione" }, { id: 30, name: "30. Fattori dannosi esterni" }, { id: 31, name: "31. Fattori dannosi generati dall'oggetto" }, { id: 32, name: "32. Facilità di produzione" }, { id: 33, name: "33. Facilità d'uso" }, { id: 34, name: "34. Facilità di riparazione" }, { id: 35, name: "35. Adattabilità o versatilità" }, { id: 36, name: "36. Complessità del dispositivo" }, { id: 37, name: "37. Complessità del controllo" }, { id: 38, name: "38. Livello di automazione" }, { id: 39, name: "39. Produttività" }
-];
-
-const principles = {
-    1: { id: 1, name: "Segmentazione", description: "Dividi un oggetto in parti indipendenti. Rendi un oggetto facile da smontare." },
-    2: { id: 2, name: "Estrazione", description: "Separa una parte interferente o una proprietà da un oggetto." },
-    3: { id: 3, name: "Qualità Locale", description: "Fai in modo che ogni parte funzioni in condizioni ottimali." },
-    4: { id: 4, name: "Asimmetria", description: "Cambia la forma da simmetrica ad asimmetrica." },
-    5: { id: 5, name: "Unione", description: "Unisci oggetti o operazioni identiche." },
-    6: { id: 6, name: "Universalità", description: "Fai in modo che una parte svolga più funzioni." },
-    7: { id: 7, name: "Matrioska", description: "Inserisci un oggetto dentro un altro." },
-    8: { id: 8, name: "Contrappeso", description: "Compensa il peso unendo l'oggetto ad un altro." },
-    9: { id: 9, name: "Azione preventiva contraria", description: "Esegui prima un'azione contraria per controllare effetti dannosi." },
-    10: { id: 10, name: "Azione preventiva", description: "Esegui l'azione richiesta in anticipo." },
-    11: { id: 11, name: "Cuscino preventivo", description: "Prepara contromisure di emergenza." },
-    12: { id: 12, name: "Equipotenzialità", description: "Limita i cambi di posizione in un campo potenziale." },
-    13: { id: 13, name: "Inversione", description: "Inverti l'azione usata. Rendi le parti mobili fisse e viceversa." },
-    14: { id: 14, name: "Sferoidale", description: "Sostituisci parti lineari con curve." },
-    15: { id: 15, name: "Dinamicità", description: "Permetti alle caratteristiche di cambiare per ogni fase." },
-    16: { id: 16, name: "Azioni parziali o eccessive", description: "Usa un po' meno o un po' più per semplificare." },
-    17: { id: 17, name: "Nuova dimensione", description: "Sposta l'oggetto in due o tre dimensioni." },
-    18: { id: 18, name: "Vibrazione meccanica", description: "Fai vibrare l'oggetto." },
-    19: { id: 19, name: "Azione periodica", description: "Sostituisci azione continua con impulsi." },
-    20: { id: 20, name: "Continuità azione utile", description: "Lavora costantemente a pieno carico." },
-    21: { id: 21, name: "Scorrimento veloce", description: "Esegui fasi dannose ad alta velocità." },
-    22: { id: 22, name: "Danno in beneficio", description: "Usa fattori dannosi per ottenere effetti positivi." },
-    23: { id: 23, name: "Feedback", description: "Introduci feedback per migliorare il processo." },
-    24: { id: 24, name: "Intermediario", description: "Usa un processo o oggetto intermedio." },
-    25: { id: 25, name: "Auto-servizio", description: "Fai in modo che l'oggetto si serva da solo." },
-    26: { id: 26, name: "Copia", description: "Usa copie economiche al posto di oggetti fragili." },
-    27: { id: 27, name: "Vita breve", description: "Sostituisci oggetti costosi con molti economici." },
-    28: { id: 28, name: "Sostituzione sistema meccanico", description: "Usa campi ottici, acustici o magnetici." },
-    29: { id: 29, name: "Pneumatici e idraulici", description: "Usa parti gassose o liquide." },
-    30: { id: 30, name: "Membrane flessibili", description: "Usa film sottili al posto di strutture 3D." },
-    31: { id: 31, name: "Materiali porosi", description: "Rendi l'oggetto poroso." },
-    32: { id: 32, name: "Cambio di colore", description: "Cambia colore o trasparenza." },
-    33: { id: 33, name: "Omogeneità", description: "Interazione con oggetti dello stesso materiale." },
-    34: { id: 34, name: "Scarto e rigenerazione", description: "Rigenera parti consumate." },
-    35: { id: 35, name: "Trasformazione proprietà", description: "Cambia stato fisico, densità o temperatura." },
-    36: { id: 36, name: "Transizione di fase", description: "Usa fenomeni delle transizioni di fase." },
-    37: { id: 37, name: "Espansione termica", description: "Usa coefficienti di espansione diversi." },
-    38: { id: 38, name: "Ossidanti forti", description: "Usa aria arricchita di ossigeno." },
-    39: { id: 39, name: "Atmosfera inerte", description: "Esegui processi in vuoto o ambiente inerte." },
-    40: { id: 40, name: "Materiali compositi", description: "Usa materiali multi-strato." },
-};
-
-const contradictionMatrix = {
-    1:{2:[29,35,8,40],25:[10,15,21],39:[35,21,10]},
-    2:{3:[17,7,1,4],25:[10,15,21]},
-    25:{39:[35,21,10],28:[10,19,32]},
-    // La matrice può essere estesa secondo le necessità dell'utente
-};
-
 // --- CONFIGURAZIONE UI ---
 const PRIORITIES = {
   1: { name: "Critica", color: "#32cd32", bgColor: "#dcfce7", border: "#16a34a" },
@@ -153,6 +98,7 @@ export default function App() {
   const [dragOver, setDragOver] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+  const [copyFeedback, setCopyFeedback] = useState(false);
 
   // Inizializzazione
   useEffect(() => {
@@ -166,13 +112,40 @@ export default function App() {
 
     const script = document.createElement('script');
     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js';
-    script.onload = () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js'; };
+    script.onload = () => { if (window.pdfjsLib) window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js'; };
     document.body.appendChild(script);
   }, []);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ tasks, scheduledTasks, apiKey, workHours, routines, notes }));
   }, [tasks, scheduledTasks, apiKey, workHours, routines, notes]);
+
+  // Identificazione task completati oggi per il report
+  const tasksCompletedToday = useMemo(() => {
+    return tasks.filter(t => t.status === 'done' && t.completedAt && isToday(parseISO(t.completedAt)));
+  }, [tasks]);
+
+  const handleCopyReport = () => {
+    const dateStr = format(new Date(), 'eeee d MMMM yyyy', { locale: it });
+    let report = `📄 REPORT ATTIVITÀ - ${dateStr}\n\n`;
+    
+    report += `✅ ATTIVITÀ COMPLETATE OGGI:\n`;
+    if (tasksCompletedToday.length > 0) {
+      tasksCompletedToday.forEach(t => {
+        report += `- ${t.title}\n`;
+      });
+    } else {
+      report += `- Nessuna attività completata a sistema.\n`;
+    }
+
+    if (notes.trim()) {
+      report += `\n📝 NOTE STRATEGICHE E DETTAGLI:\n${notes}\n`;
+    }
+
+    navigator.clipboard.writeText(report);
+    setCopyFeedback(true);
+    setTimeout(() => setCopyFeedback(false), 2000);
+  };
 
   // Gestione Task
   const addTask = (data) => {
@@ -201,7 +174,7 @@ export default function App() {
     } : t));
   };
 
-  // Logica "Prepara Giornata" con Distanziamento
+  // Logica "Prepara Giornata"
   const timeSlots = useMemo(() => {
     const slots = [];
     const addRange = (start, end) => {
@@ -282,10 +255,10 @@ export default function App() {
           <h1 className="text-xl font-bold tracking-tight text-slate-800">Assistenza Manager <span className="text-blue-600 text-[10px] ml-2 font-mono">V2.0 PRO</span></h1>
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={() => setShowApiKeyModal(true)} className="p-2 text-slate-400 hover:bg-white rounded-lg"><KeyRound size={20}/></button>
-          <button onClick={() => setShowSettings(true)} className="p-2 text-slate-400 hover:bg-white rounded-lg"><Settings size={20}/></button>
-          <button onClick={prepareDay} className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-xl font-bold text-xs"><ListTodo size={18} /> Prepara Giornata</button>
-          <button onClick={() => window.print()} className="p-2 text-slate-400 hover:bg-white rounded-lg"><Printer size={20} /></button>
+          <button onClick={() => setShowApiKeyModal(true)} className="p-2 text-slate-400 hover:bg-white rounded-lg transition-colors"><KeyRound size={20}/></button>
+          <button onClick={() => setShowSettings(true)} className="p-2 text-slate-400 hover:bg-white rounded-lg transition-colors"><Settings size={20}/></button>
+          <button onClick={prepareDay} className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-xl font-bold text-xs transition-all"><ListTodo size={18} /> Prepara Giornata</button>
+          <button onClick={() => window.print()} className="p-2 text-slate-400 hover:bg-white rounded-lg transition-all"><Printer size={20} /></button>
           <button onClick={() => setIsAddingTask(true)} className="bg-blue-600 text-white px-5 py-2 rounded-xl font-bold text-sm shadow-lg hover:bg-blue-700 transition-all">+ Nuova</button>
         </div>
       </header>
@@ -346,9 +319,34 @@ export default function App() {
             <h3 className="font-bold text-sm">Analisi TRIZ AI</h3>
             <p className="text-[10px] opacity-70">Trascina un problema qui</p>
           </div>
-          <div className="bg-white rounded-3xl p-5 shadow-sm border h-[60vh] flex flex-col">
-            <h3 className="font-bold text-slate-700 mb-4 text-sm flex items-center gap-2"><ClipboardList size={16}/> Note Strategiche</h3>
-            <textarea value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full flex-grow bg-slate-50 rounded-2xl p-4 text-xs border-none focus:ring-1 resize-none custom-scrollbar" placeholder="Appunti..." />
+          <div className="bg-white rounded-3xl p-5 shadow-sm border h-[65vh] flex flex-col overflow-hidden">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="font-bold text-slate-700 text-sm flex items-center gap-2"><ClipboardList size={16}/> Note & Report</h3>
+              <button 
+                onClick={handleCopyReport}
+                className={`p-1.5 rounded-lg flex items-center gap-1.5 text-[10px] font-bold transition-all ${copyFeedback ? 'bg-green-500 text-white' : 'bg-slate-100 text-slate-500 hover:bg-blue-600 hover:text-white'}`}
+              >
+                <Copy size={12}/> {copyFeedback ? 'Copiato!' : 'Copia Report'}
+              </button>
+            </div>
+            
+            {/* Elenco task completati oggi (visivo) */}
+            <div className="mb-4 space-y-1 overflow-y-auto max-h-32 custom-scrollbar">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Completati oggi:</p>
+              {tasksCompletedToday.length > 0 ? tasksCompletedToday.map(t => (
+                <div key={t.id} className="text-[10px] text-slate-600 flex items-center gap-1 bg-slate-50 p-1 rounded">
+                  <CheckCircle2 size={10} className="text-green-500 flex-shrink-0" />
+                  <span className="truncate">{t.title}</span>
+                </div>
+              )) : <p className="text-[10px] text-slate-400 italic">Nessun task completato.</p>}
+            </div>
+
+            <textarea 
+              value={notes} 
+              onChange={(e) => setNotes(e.target.value)} 
+              className="w-full flex-grow bg-slate-50 rounded-2xl p-4 text-xs border-none focus:ring-1 focus:ring-blue-200 resize-none custom-scrollbar" 
+              placeholder="Aggiungi note strategiche per domani o dettagli per il report..." 
+            />
           </div>
         </section>
       </main>
@@ -403,7 +401,7 @@ export default function App() {
                 <select name="priority" className="rounded-xl border-slate-200 text-sm p-3"><option value="1">Critica</option><option value="2">Urgente</option><option value="3" selected>Pianificabile</option></select>
                 <input name="deadline" type="datetime-local" className="rounded-xl border-slate-200 text-sm p-3" />
               </div>
-              <div className="flex gap-3"><button type="button" onClick={() => setIsAddingTask(false)} className="flex-grow bg-slate-50 py-4 rounded-2xl font-bold">Annulla</button><button type="submit" className="flex-grow bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg">Aggiungi</button></div>
+              <div className="flex gap-3"><button type="button" onClick={() => setIsAddingTask(false)} className="flex-grow bg-slate-50 py-4 rounded-2xl font-bold text-slate-400">Annulla</button><button type="submit" className="flex-grow bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg">Aggiungi</button></div>
             </form>
           </div>
         </div>
@@ -437,14 +435,21 @@ export default function App() {
         </div>
       )}
 
-      {focusedTask && (
-        <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-8 w-full max-w-sm text-center">
-            <h2 className="font-bold text-xl mb-4">{focusedTask.title}</h2>
-            <div className="text-6xl font-black text-blue-600 mb-8 font-mono tracking-tighter">25:00</div>
-            <div className="flex gap-4">
-              <button className="flex-grow bg-blue-600 text-white py-3 rounded-xl font-bold">Avvia Pomodoro</button>
-              <button onClick={() => setFocusedTask(null)} className="p-3 text-slate-400"><X/></button>
+      {/* Modal API Key */}
+      {showApiKeyModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
+            <h2 className="text-xl font-bold mb-4">Configura API Gemini</h2>
+            <input 
+              type="password" 
+              value={apiKey} 
+              onChange={(e) => setApiKey(e.target.value)}
+              className="w-full p-3 border rounded-xl mb-6 text-sm"
+              placeholder="Incolla qui la tua chiave API..."
+            />
+            <div className="flex gap-2">
+              <button onClick={() => setShowApiKeyModal(false)} className="flex-grow bg-slate-100 py-3 rounded-xl font-bold">Annulla</button>
+              <button onClick={() => setShowApiKeyModal(false)} className="flex-grow bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg">Salva</button>
             </div>
           </div>
         </div>
